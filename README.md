@@ -1,4 +1,4 @@
-# QuanLiCuaHangDiDong Project
+# QuanLiCuaHangDienThoai Project
 
 ## Overview
 
