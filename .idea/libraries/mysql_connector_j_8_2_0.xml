@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="mysql-connector-j-8.2.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/mysql-connector-j-8.2.0/mysql-connector-j-8.2.0.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jgoodies-forms-1_8_0/jgoodies-forms-1.8.0/jgoodies-forms-1.8.0.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jgoodies-common-1_8_1/jgoodies-common-1.8.1/jgoodies-common-1.8.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/Downloads/jgoodies-forms-1_8_0/jgoodies-forms-1.8.0/jgoodies-forms-1.8.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
