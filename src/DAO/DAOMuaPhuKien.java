@@ -43,15 +43,18 @@ public class DAOMuaPhuKien {
         return muapks;
     }
 
-    public List<ChiTietHoaDonPhuKien> getChiTietHoaDonPhuKien(){
+    public List<ChiTietHoaDonPhuKien> getChiTietHoaDonPhuKien(int mahd){
         List<ChiTietHoaDonPhuKien> chiTietHoaDonPhuKiens = new ArrayList<ChiTietHoaDonPhuKien>();
-        String sql = "SELECT PhuKien.tenpk , PhuKien.giaban, PhuKien.phantramgiam, muapk.soluong FROM PhuKien JOIN muapk ON PhuKien.mapk  = muapk.mapk;";
+        String sql = "SELECT PhuKien.mapk,  PhuKien.tenpk , PhuKien.giaban, PhuKien.phantramgiam, muapk.soluong " +
+                "FROM PhuKien JOIN muapk ON PhuKien.mapk  = muapk.mapk WHERE muapk.mahd = ?;";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, mahd);
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()){
                 ChiTietHoaDonPhuKien cthd = new ChiTietHoaDonPhuKien();
+                cthd.setMapk(rs.getInt("mapk"));
                 cthd.setTenpk(rs.getString("tenpk"));
                 cthd.setGiaban(rs.getInt("giaban"));
                 cthd.setPhamtramgiam(rs.getInt("phantramgiam"));
@@ -65,13 +68,13 @@ public class DAOMuaPhuKien {
         return chiTietHoaDonPhuKiens;
     }
 
-    public void insertmuapk(int mahd, int mapk, int soluong){
+    public void insertMuapk(muapk muapk){
         String sql = "INSERT INTO muapk(mahd, mapk, soluong) VALUES (?, ?, ?);";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, mahd);
-            preparedStatement.setInt(2, mapk);
-            preparedStatement.setInt(3, soluong);
+            preparedStatement.setInt(1, muapk.getMahd());
+            preparedStatement.setInt(2, muapk.getMapk());
+            preparedStatement.setInt(3, muapk.getSoluong());
 
             int rs = preparedStatement.executeUpdate();
             System.out.println(rs);
@@ -92,5 +95,30 @@ public class DAOMuaPhuKien {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void deleteSanPham(int mapk){
+        String sql = "DELETE FROM muapk WHERE mapk = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, mapk);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteSPHoaDon(int mahd){
+        String sql = "DELETE FROM muapk WHERE mahd = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, mahd);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

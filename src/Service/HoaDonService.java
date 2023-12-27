@@ -4,6 +4,7 @@ import model.HoaDon;
 import model.ViewHoaDon;
 import DAO.DAOHoaDon;
 
+import javax.swing.*;
 import java.util.List;
 
 public class HoaDonService {
@@ -22,5 +23,13 @@ public class HoaDonService {
 
     public void updateHoaDon(HoaDon hoaDon){
         daoHoaDon.updateHoaDon(hoaDon);
+    }
+
+    public void deleteHoaDon(int mahd){
+        daoHoaDon.deleteHoaDon(mahd);
+    }
+
+    public int getMaHoaDonCuoiCung(){
+       return daoHoaDon.getMaHoaDonCuoiCung();
     }
 }

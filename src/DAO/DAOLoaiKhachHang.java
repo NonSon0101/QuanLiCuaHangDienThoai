@@ -26,12 +26,14 @@ public class DAOLoaiKhachHang {
         try {
             preparedStatement = conn.prepareStatement(sql);
             ResultSet rs = preparedStatement.executeQuery();
-            LoaiKhachHang lkh = new LoaiKhachHang();
+
             while(rs.next()){
+                LoaiKhachHang lkh = new LoaiKhachHang();
                 lkh.setMaloaikh(rs.getInt("maloaikh"));
                 lkh.setTenloaikh(rs.getString("tenloaikh"));
+                loaiKhachHangs.add(lkh);
             }
-            loaiKhachHangs.add(lkh);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -52,7 +54,7 @@ public class DAOLoaiKhachHang {
     }
 
     public void updateLoaiKhachHang(int maloaikh, String tenloaikh){
-        String sql = "UPDATE QuanLiCuaHangDiDong.LoaiKhachHang SET tenloaikh=? WHERE maloaikh=?;";
+        String sql = "UPDATE LoaiKhachHang SET tenloaikh=? WHERE maloaikh=?;";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, tenloaikh);
@@ -63,5 +65,22 @@ public class DAOLoaiKhachHang {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public int findMaKhachHang(String tenloaikh){
+        int maloaikh = 0;
+        String sql = "SELECT maloaikh FROM LoaiKhachHang WHERE tenloaikh = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, tenloaikh);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while(rs.next()){
+                maloaikh = rs.getInt("maloaikh");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return maloaikh;
     }
 }

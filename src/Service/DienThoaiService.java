@@ -5,6 +5,7 @@ import model.DienThoai;
 import model.ViewDienThoai;
 
 
+import javax.swing.*;
 import java.util.List;
 
 public class DienThoaiService {
@@ -18,6 +19,7 @@ public class DienThoaiService {
     }
 
     public void addDienThoai(DienThoai dienThoai){
+
         daoDienThoai.insertDienThoai(dienThoai);
     }
     public void deleteDienThoai(int madt){

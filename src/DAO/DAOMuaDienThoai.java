@@ -42,15 +42,18 @@ public class DAOMuaDienThoai {
         return muadts;
     }
 
-    public List<ChiTietHoaDonDienThoai> getChiTietHoaDonDienThoai(){
+    public List<ChiTietHoaDonDienThoai> getChiTietHoaDonDienThoai(int mahd){
         List<ChiTietHoaDonDienThoai> chiTietHoaDonDienThoais = new ArrayList<ChiTietHoaDonDienThoai>();
-        String sql = "SELECT DienThoai.tendt, DienThoai.giaban, DienThoai.phantramgiam, muadt.soluong FROM DienThoai JOIN muadt ON DienThoai.madt = muadt.madt;";
+        String sql = "SELECT DienThoai.madt, DienThoai.tendt, DienThoai.giaban, DienThoai.phantramgiam, " +
+                "muadt.soluong FROM DienThoai JOIN muadt ON DienThoai.madt = muadt.madt WHERE muadt.mahd = ?;";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, mahd);
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()){
                 ChiTietHoaDonDienThoai cthd = new ChiTietHoaDonDienThoai();
+                cthd.setMadt(rs.getInt("madt"));
                 cthd.setTendt(rs.getString("tendt"));
                 cthd.setGiaban(rs.getInt("giaban"));
                 cthd.setPhamtramgiam(rs.getInt("phantramgiam"));
@@ -64,13 +67,13 @@ public class DAOMuaDienThoai {
         return chiTietHoaDonDienThoais;
     }
 
-    public void insertMuadt(int mahd, int madt, int soluong){
+    public void insertMuadt(muadt muadt){
         String sql = "INSERT INTO muadt(mahd, madt, soluong) VALUES (?, ?, ?);";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, mahd);
-            preparedStatement.setInt(2, madt);
-            preparedStatement.setInt(3, soluong);
+            preparedStatement.setInt(1, muadt.getMahd());
+            preparedStatement.setInt(2, muadt.getMadt());
+            preparedStatement.setInt(3, muadt.getSoluong());
 
             int rs = preparedStatement.executeUpdate();
             System.out.println(rs);
@@ -91,5 +94,29 @@ public class DAOMuaDienThoai {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+    public void deleteSanPham(int madt){
+        String sql = "DELETE FROM muadt WHERE madt = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, madt);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteSPHoaDon(int mahd){
+        String sql = "DELETE FROM muadt WHERE mahd = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, mahd);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

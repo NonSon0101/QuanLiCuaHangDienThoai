@@ -3,17 +3,16 @@ package GUI;
 import Service.LoaiPhuKienService;
 import Service.NhaSanXuatService;
 import Service.PhuKienService;
-import model.HangSanXuat;
-import model.LoaiPhuKien;
-import model.PhuKien;
-import model.ViewPhuKien;
-
+import model.*;
+import Exception.EmptyInputException;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class QuanLiPhuKien extends JFrame {
@@ -38,23 +37,45 @@ public class QuanLiPhuKien extends JFrame {
     private JPanel mainPanel;
     private JLabel labelLoaiPhuKien;
     private JComboBox comboBoxLoaiPhuKien;
-
+    private JButton btnQuayVe;
+    private JPanel panelInfo;
+    InputCheck inputChecker;
     LoaiPhuKienService loaiPhuKienService;
     NhaSanXuatService nhaSanXuatService;
     PhuKienService phuKienService;
     PhuKien phuKien;
     DefaultTableModel defaultTableModel;
 
+    DecimalFormat decimalFormat = new DecimalFormat("#,###");
+
     int option = 0;
 
 
-    public QuanLiPhuKien(){
+    public QuanLiPhuKien(NhanVien nhanVien) {
         setContentPane(mainPanel);
         setTitle("Quản Lí Phụ Kiện");
-        setDefaultCloseOperation(HIDE_ON_CLOSE);
+        mainPanel.setBackground(new Color(32,178,170,255));
+        panelInfo.setBackground(new Color(32,178,170,255));
+        panelBtn.setBackground(new Color(32,178,170,255));
+        panelTable.setBackground(new Color(32,178,170,255));
+        btnThem.setBackground(Color.GREEN);
+        btnXoa.setBackground(Color.RED);
+        btnCapNhat.setBackground(Color.YELLOW);
+        btnQuayVe.setBackground(new Color(0,190,98,255));
+        btnXacNhan.setBackground(new Color(92,169,112,255));
+        refreshBtn.setBackground(new Color(92,169,112,255));
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1000, 500);
         setLocationRelativeTo(null);
         setVisible(true);
+
+        String chucvu = nhanVien.getChucvu();
+        if(chucvu.equals("Nhân viên")){
+            btnThem.setVisible(false);
+            btnCapNhat.setVisible(false);
+            btnXoa.setVisible(false);
+            btnXacNhan.setVisible(false);
+        }
 
         phuKien = new PhuKien();
         loaiPhuKienService = new LoaiPhuKienService();
@@ -62,6 +83,7 @@ public class QuanLiPhuKien extends JFrame {
         phuKienService = new PhuKienService();
         defaultTableModel = new DefaultTableModel();
         tablePhuKien.setModel(defaultTableModel);
+        inputChecker = new ThrowException();
 
         defaultTableModel.addColumn("Mã PK");
         defaultTableModel.addColumn("Tên Phụ Kiện");
@@ -77,12 +99,12 @@ public class QuanLiPhuKien extends JFrame {
         panelTable.setViewportView(scrollPane);
 
         List<LoaiPhuKien> loaiPhuKiens = loaiPhuKienService.getAllLoaiPhuKien();
-        for(LoaiPhuKien loaiPhuKien : loaiPhuKiens){
+        for (LoaiPhuKien loaiPhuKien : loaiPhuKiens) {
             comboBoxLoaiPhuKien.addItem(loaiPhuKien.getTenlpk());
         }
 
         List<HangSanXuat> hangSanXuats = nhaSanXuatService.getAllHangSanXuat();
-        for (HangSanXuat hangSanXuat : hangSanXuats){
+        for (HangSanXuat hangSanXuat : hangSanXuats) {
             comboBoxNsx.addItem(hangSanXuat.getTenhsx());
         }
 
@@ -96,7 +118,7 @@ public class QuanLiPhuKien extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 enabelInfo();
-                option =1;
+                option = 1;
                 textTenPhuKien.setText("");
                 textSoLuong.setText("");
                 textGiaBan.setText("");
@@ -106,39 +128,61 @@ public class QuanLiPhuKien extends JFrame {
         btnXacNhan.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if(option == 1){
-                    phuKien.setTenpk(textTenPhuKien.getText());
-                    phuKien.setGiaban(Integer.parseInt(textGiaBan.getText()));
-                    phuKien.setSoluong(Integer.parseInt(textSoLuong.getText()));
-                    phuKien.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
-                    int maplk = loaiPhuKienService.getMaLoaiPhuKien(String.valueOf(comboBoxLoaiPhuKien.getSelectedItem()));
-                    phuKien.setLoaipk(maplk);
-                    int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
-                    phuKien.setMansx(mansx);
+                if (option == 1) {
+                    try{
+                        phuKien.setTenpk(textTenPhuKien.getText());
+                        inputChecker.checkInput(textTenPhuKien.getText());
+                        try {
+                            phuKien.setGiaban(Integer.parseInt(textGiaBan.getText()));
+                            phuKien.setSoluong(Integer.parseInt(textSoLuong.getText()));
+                            phuKien.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
+                            int maplk = loaiPhuKienService.getMaLoaiPhuKien(String.valueOf(comboBoxLoaiPhuKien.getSelectedItem()));
+                            phuKien.setLoaipk(maplk);
+                            int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
+                            phuKien.setMansx(mansx);
+                            phuKienService.addPhuKien(phuKien);
+                            reloadData(phuKienService.getAllPhuKien());
+                            JOptionPane.showMessageDialog(mainPanel, "Thêm thành công");
+                            option = 0;
+                            disableInfo();
+                        }catch (NumberFormatException e){
+                            JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
+                        }
+                    }
+                    catch (EmptyInputException ex){
+                        JOptionPane.showMessageDialog(mainPanel, "Vui lòng nhập tên sản phẩm");
+                    }
 
-                    phuKienService.addPhuKien(phuKien);
-                    reloadData(phuKienService.getAllPhuKien());
-                    option = 0;
-                    disableInfo();
                 }
-                if(option ==2){
-                    DefaultTableModel model = (DefaultTableModel)tablePhuKien.getModel();
+                if (option == 2) {
+                    DefaultTableModel model = (DefaultTableModel) tablePhuKien.getModel();
                     int selectedRowIndex = tablePhuKien.getSelectedRow();
                     int mapk = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
                     int maplk = loaiPhuKienService.getMaLoaiPhuKien(String.valueOf(comboBoxLoaiPhuKien.getSelectedItem()));
                     int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
-                    phuKien.setMapk(mapk);
-                    phuKien.setTenpk(textTenPhuKien.getText());
-                    phuKien.setLoaipk(maplk);
-                    phuKien.setMansx(mansx);
-                    phuKien.setGiaban(Integer.parseInt(textGiaBan.getText()));
-                    phuKien.setSoluong(Integer.parseInt(textSoLuong.getText()));
-                    phuKien.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
+                    try{
+                        phuKien.setTenpk(textTenPhuKien.getText());
+                        inputChecker.checkInput(textTenPhuKien.getText());
+                        try {
+                            phuKien.setGiaban(Integer.parseInt(textGiaBan.getText()));
+                            phuKien.setSoluong(Integer.parseInt(textSoLuong.getText()));
+                            phuKien.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
+                            phuKien.setMansx(mansx);
+                            phuKien.setLoaipk(maplk);
+                            phuKien.setMapk(mapk);
+                            phuKienService.updatePhuKien(phuKien);
+                            reloadData(phuKienService.getAllPhuKien());
+                            JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
+                            option = 0;
+                            disableInfo();
+                        }catch (NumberFormatException e){
+                            JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
+                        }
+                    }
+                    catch (EmptyInputException ex){
+                        JOptionPane.showMessageDialog(mainPanel, "Vui lòng nhập tên sản phẩm");
+                    }
 
-                    phuKienService.updatePhuKien(phuKien);
-                    reloadData(phuKienService.getAllPhuKien());
-                    option = 0;
-                    disableInfo();
                 }
             }
         });
@@ -153,8 +197,8 @@ public class QuanLiPhuKien extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 int res = JOptionPane.showConfirmDialog(mainPanel, "Bạn chắc chắn muốn xóa ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if(res == JOptionPane.YES_OPTION){
-                    DefaultTableModel model = (DefaultTableModel)tablePhuKien.getModel();
+                if (res == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel) tablePhuKien.getModel();
                     int selectedRowIndex = tablePhuKien.getSelectedRow();
                     int mansx = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
                     phuKienService.deletePhuKien(mansx);
@@ -171,15 +215,24 @@ public class QuanLiPhuKien extends JFrame {
                 setInfo();
             }
         });
+        btnQuayVe.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                new MainForm(nhanVien);
+                dispose();
+            }
+        });
     }
-    private void reloadData(List<ViewPhuKien> phuKiens){
+
+    private void reloadData(List<ViewPhuKien> phuKiens) {
         defaultTableModel.setRowCount(0);
-        for(ViewPhuKien phuKien : phuKiens){
+        for (ViewPhuKien phuKien : phuKiens) {
             defaultTableModel.addRow(new Object[]{phuKien.getMapk(), phuKien.getTenpk(), phuKien.getTenloaipk(), phuKien.getTenhsx(), phuKien
                     .getSoluong(), phuKien.getGiaban(), phuKien.getPhantramgiam()});
         }
     }
-    private void disableInfo(){
+
+    private void disableInfo() {
         textTenPhuKien.enable(false);
         textSoLuong.enable(false);
         textGiaBan.enable(false);
@@ -187,7 +240,8 @@ public class QuanLiPhuKien extends JFrame {
         comboBoxNsx.enable(false);
         comboBoxLoaiPhuKien.enable(false);
     }
-    private void enabelInfo(){
+
+    private void enabelInfo() {
         textTenPhuKien.enable(true);
         textSoLuong.enable(true);
         textGiaBan.enable(true);
@@ -195,17 +249,16 @@ public class QuanLiPhuKien extends JFrame {
         comboBoxNsx.enable(true);
         comboBoxLoaiPhuKien.enable(true);
     }
-    private void setInfo(){
-        DefaultTableModel model = (DefaultTableModel)tablePhuKien.getModel();
+
+    private void setInfo() {
+        DefaultTableModel model = (DefaultTableModel) tablePhuKien.getModel();
         int selectedRowIndex = tablePhuKien.getSelectedRow();
         textTenPhuKien.setText(model.getValueAt(selectedRowIndex, 1).toString());
         textSoLuong.setText(model.getValueAt(selectedRowIndex, 4).toString());
         textGiamGia.setText(model.getValueAt(selectedRowIndex, 6).toString());
-        textGiaBan.setText(model.getValueAt(selectedRowIndex, 5).toString());
+        textGiaBan.setText(decimalFormat.format(Integer.parseInt(model.getValueAt(selectedRowIndex, 5).toString())));
         comboBoxNsx.setSelectedItem(model.getValueAt(selectedRowIndex, 3).toString());
         comboBoxLoaiPhuKien.setSelectedItem(model.getValueAt(selectedRowIndex, 2).toString());
     }
-    public static void main(String[] args){
-        new QuanLiPhuKien();
-    }
 }
+

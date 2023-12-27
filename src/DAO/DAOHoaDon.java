@@ -1,4 +1,5 @@
 package DAO;
+import GUI.BanHang;
 import model.HoaDon;
 import model.ViewHoaDon;
 
@@ -42,6 +43,20 @@ public class DAOHoaDon {
         return hoaDons;
     }
 
+    public int getMaHoaDonCuoiCung(){
+        int mahd = 0;
+        String sql = "SELECT * FROM HoaDon ORDER BY mahd DESC LIMIT 1;";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                mahd = rs.getInt("mahd");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return mahd;
+    }
     public void insertHoadon(HoaDon hoaDon){
         String sql = "INSERT INTO HoaDon (makh, manv, ngaylap) VALUES(?, ?, ?);";
 
@@ -89,12 +104,5 @@ public class DAOHoaDon {
         }
 
     }
-    public static void main(String[] args){
-        DAOHoaDon hd = new DAOHoaDon();
-        List<ViewHoaDon> hoaDons = hd.getAllHoaDon();
-        for(ViewHoaDon hoaDon : hoaDons){
-            System.out.println(hoaDon.getMahd()+ hoaDon.getKhachhang()+ hoaDon.getNhanvien()+ hoaDon.getNgaylap());
-        }
 
-    }
 }

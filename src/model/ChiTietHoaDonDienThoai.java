@@ -1,11 +1,19 @@
 package model;
 
 public class ChiTietHoaDonDienThoai {
-
+    int madt;
     String tendt;
     int giaban;
     int phamtramgiam;
     int soluong;
+
+    public int getMadt() {
+        return madt;
+    }
+
+    public void setMadt(int madt) {
+        this.madt = madt;
+    }
 
     public String getTendt() {
         return tendt;

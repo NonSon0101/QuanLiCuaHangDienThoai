@@ -4,11 +4,14 @@ import Service.DienThoaiService;
 import Service.NhaSanXuatService;
 import model.DienThoai;
 import model.HangSanXuat;
+import model.NhanVien;
 import model.ViewDienThoai;
-
+import Exception.EmptyInputException;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.*;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class QuanLiDienThoai extends JFrame{
@@ -31,31 +34,53 @@ public class QuanLiDienThoai extends JFrame{
     private JLabel labelGiamGia;
     private JButton btnCapNhat;
     private JButton btnXacNhan;
-
+    private JButton btnQuayVe;
+    private JPanel panelInfo;
+    InputCheck inputChecker;
     NhaSanXuatService nhaSanXuatService;
     DienThoaiService dienThoaiService;
     DefaultTableModel defaultTableModel;
     DienThoai dienThoai;
+    DecimalFormat decimalFormat = new DecimalFormat("#,###");
     int option = 0;
-    public QuanLiDienThoai(){
+    public QuanLiDienThoai(NhanVien nhanVien){
         setContentPane(mainPanel);
+        mainPanel.setBackground(new Color(32,178,170,255));
+        panelInfo.setBackground(new Color(32,178,170,255));
+        panelBtn.setBackground(new Color(32,178,170,255));
+        panelTable.setBackground(new Color(32,178,170,255));
+        btnThem.setBackground(Color.GREEN);
+        btnXoa.setBackground(Color.RED);
+        btnCapNhat.setBackground(Color.YELLOW);
+        btnQuayVe.setBackground(new Color(0,190,98,255));
+        btnXacNhan.setBackground(new Color(92,169,112,255));
+        refreshBtn.setBackground(new Color(92,169,112,255));
         setTitle("Quản Lí Điện Thoại");
-        setDefaultCloseOperation(HIDE_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1000, 500);
         setLocationRelativeTo(null);
         setVisible(true);
+
+        String chucvu = nhanVien.getChucvu();
+        if(chucvu.equals("Nhân viên")){
+            btnThem.setVisible(false);
+            btnCapNhat.setVisible(false);
+            btnXoa.setVisible(false);
+            btnXacNhan.setVisible(false);
+        }
 
         dienThoai = new DienThoai();
         nhaSanXuatService = new NhaSanXuatService();
         dienThoaiService = new DienThoaiService();
         defaultTableModel = new DefaultTableModel();
         tableDienThoai.setModel(defaultTableModel);
+        inputChecker = new ThrowException();
 
         defaultTableModel.addColumn("Ma DT");
         defaultTableModel.addColumn("Tên điện thoại");
         defaultTableModel.addColumn("Nhà sản Xuất");
         defaultTableModel.addColumn("Số luọng");
-        defaultTableModel.addColumn("Giá");
+        defaultTableModel.addColumn("Giá Bán");
         defaultTableModel.addColumn("Giảm giá(%)");
 
         reloadData(dienThoaiService.getAllDienThoai());
@@ -118,36 +143,78 @@ public class QuanLiDienThoai extends JFrame{
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 if(option ==1){
-                    dienThoai.setTendt(textTenDienThoai.getText());
-                    dienThoai.setSoluong(Integer.parseInt(textSoLuong.getText()));
-                    dienThoai.setGiaban(Integer.parseInt(textGiaBan.getText()));
-                    dienThoai.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
-                    int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
-                    dienThoai.setMansx(mansx);
-
-                    dienThoaiService.addDienThoai(dienThoai);
-                    reloadData(dienThoaiService.getAllDienThoai());
-                    option = 0;
-                    disableInfo();
+                    try{
+                        dienThoai.setTendt(textTenDienThoai.getText());
+                        inputChecker.checkInput(textTenDienThoai.getText());
+                        try {
+                            dienThoai.setSoluong(Integer.parseInt(textSoLuong.getText()));
+                            dienThoai.setGiaban(Integer.parseInt(textGiaBan.getText()));
+                            dienThoai.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
+                            int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
+                            dienThoai.setMansx(mansx);
+                            dienThoaiService.addDienThoai(dienThoai);
+                            reloadData(dienThoaiService.getAllDienThoai());
+                            JOptionPane.showMessageDialog(mainPanel, "Thêm thành công");
+                            option = 0;
+                            disableInfo();
+                        }catch (NumberFormatException e){
+                            JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
+                            textGiamGia.setText("");
+                            textTenDienThoai.setText("");
+                            textSoLuong.setText("");
+                            textGiaBan.setText("");
+                            option = 1;
+                        }
+                    }
+                    catch (EmptyInputException ex){
+                        JOptionPane.showMessageDialog(mainPanel, "Vui lòng nhập tên sản phẩm");
+                    }
                 }
                if (option == 2){
                    DefaultTableModel model = (DefaultTableModel)tableDienThoai.getModel();
                    int selectedRowIndex = tableDienThoai.getSelectedRow();
                    dienThoai.setMadt(Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString()));
-                   dienThoai.setTendt(textTenDienThoai.getText());
-                   dienThoai.setSoluong(Integer.parseInt(textSoLuong.getText()));
-                   dienThoai.setGiaban(Integer.parseInt(textGiaBan.getText()));
-                   dienThoai.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
-                   int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
-                   dienThoai.setMansx(mansx);
+                   try{
+                       dienThoai.setTendt(textTenDienThoai.getText());
+                       inputChecker.checkInput(textTenDienThoai.getText());
+                       try {
+                           dienThoai.setSoluong(Integer.parseInt(textSoLuong.getText()));
+                           dienThoai.setGiaban(Integer.parseInt(textGiaBan.getText()));
+                           dienThoai.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
+                           int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
+                           dienThoai.setMansx(mansx);
 
-                   dienThoaiService.updateDienThoai(dienThoai);
-                   reloadData(dienThoaiService.getAllDienThoai());
-                   option = 0;
-                    disableInfo();
+                           dienThoaiService.updateDienThoai(dienThoai);
+                           JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
+                           reloadData(dienThoaiService.getAllDienThoai());
+                           option = 0;
+                           disableInfo();
+                       }catch (NumberFormatException e){
+                           JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
+                           setInfo();
+                       }
+                   }
+                   catch (EmptyInputException ex){
+                       JOptionPane.showMessageDialog(mainPanel, "Vui lòng nhập tên sản phẩm");
+                   }
                }
             }
         });
+        btnQuayVe.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                new MainForm(nhanVien);
+                dispose();
+            }
+        });
+    }
+    private static boolean isInteger(String input) {
+        try {
+            Integer.parseInt(input);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
     private void reloadData(List<ViewDienThoai> dienThoais){
         defaultTableModel.setRowCount(0);
@@ -176,7 +243,7 @@ public class QuanLiDienThoai extends JFrame{
         textTenDienThoai.setText(model.getValueAt(selectedRowIndex, 1).toString());
         textSoLuong.setText(model.getValueAt(selectedRowIndex, 3).toString());
         comboBoxNsx.setSelectedItem(model.getValueAt(selectedRowIndex, 2).toString());
-        textGiaBan.setText(model.getValueAt(selectedRowIndex, 4).toString());
+        textGiaBan.setText(decimalFormat.format(Integer.parseInt(model.getValueAt(selectedRowIndex, 4).toString())));
         textGiamGia.setText(model.getValueAt(selectedRowIndex, 5).toString());
     }
 

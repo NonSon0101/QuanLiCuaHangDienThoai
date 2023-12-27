@@ -1,10 +1,19 @@
 package model;
 
 public class ChiTietHoaDonPhuKien {
+    int mapk;
     String tenpk;
     int giaban;
     int phamtramgiam;
     int soluong;
+
+    public int getMapk() {
+        return mapk;
+    }
+
+    public void setMapk(int mapk) {
+        this.mapk = mapk;
+    }
 
     public String getTenpk() {
         return tenpk;

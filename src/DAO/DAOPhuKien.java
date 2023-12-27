@@ -53,7 +53,7 @@ public class DAOPhuKien {
 
 
     public void insertPhuKien(PhuKien phuKien){
-        String sql = "INSERT INTO QuanLiCuaHangDiDong.PhuKien (tenpk, loaipk, soluong, giaban, phantramgiam, mansx) VALUES(?, ?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO PhuKien (tenpk, loaipk, soluong, giaban, phantramgiam, mansx) VALUES(?, ?, ?, ?, ?, ?);";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, phuKien.getTenpk());
@@ -90,6 +90,32 @@ public class DAOPhuKien {
 
     }
 
+    public void addSoLuongPhuKien(int mapk, int soluong){
+        String sql = "UPDATE PhuKien SET soluong = soluong + ? WHERE mapk = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, soluong);
+            preparedStatement.setInt(2, mapk);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    public void subSoLuongPhuKien(int mapk, int soluong){
+        String sql = "UPDATE PhuKien SET soluong = soluong - ? WHERE mapk = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, soluong);
+            preparedStatement.setInt(2, mapk);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
     public void deletePhuKien(int mapk){
         String sql = "DELETE FROM PhuKien WHERE mapk=?;";
         try {

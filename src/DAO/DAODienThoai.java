@@ -44,7 +44,7 @@ public class DAODienThoai {
     }
 
     public void insertDienThoai(DienThoai dienThoai){
-        String sql = "INSERT INTO QuanLiCuaHangDiDong.DienThoai (tendt, mansx, soluong, giaban, phantramgiam) VALUES(?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO DienThoai (tendt, mansx, soluong, giaban, phantramgiam) VALUES(?, ?, ?, ?, ?);";
 
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
@@ -79,8 +79,32 @@ public class DAODienThoai {
 
     }
 
+    public void addSoLuong(int madt, int soluong){
+        String sql = "UPDATE DienThoai SET soluong = soluong + ? WHERE madt = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, soluong);
+            preparedStatement.setInt(2, madt);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void subSoLuong(int madt, int soluong){
+        String sql = "UPDATE DienThoai SET soluong = soluong - ? WHERE madt = ?";
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setInt(1, soluong);
+            preparedStatement.setInt(2, madt);
+
+            int rs = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void deleteDienThoai(int madt){
-        String sql = "DELETE FROM QuanLiCuaHangDiDong.DienThoai WHERE madt=?;";
+        String sql = "DELETE FROM DienThoai WHERE madt=?;";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setInt(1, madt);

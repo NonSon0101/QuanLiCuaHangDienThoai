@@ -39,20 +39,20 @@ public class DAOBaoHanh {
         return baoHanhs;
     }
 
-    public void insertBaoHanh(int mahd, Date ngaylap, Date ngayhethan){
+    public void insertBaoHanh(BaoHanh baoHanh){
         String sql = "INSERT INTO BaoHanh (mahd, ngaylap, ngayhethan) VALUES(?, ?, ?);";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, mahd);
-            preparedStatement.setDate(2, ngaylap);
-            preparedStatement.setDate(3, ngayhethan);   
+            preparedStatement.setInt(1, baoHanh.getMahd());
+            preparedStatement.setDate(2, baoHanh.getNgaylap());
+            preparedStatement.setDate(3, baoHanh.getNgayhethan());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void updateBaoHanh(int mabh, int mahd, Date ngaylap, Date ngayhethan){
-        String sql = "UPDATE QuanLiCuaHangDiDong.BaoHanh SET mahd=?, ngaylap=?, ngayhethan=? WHERE mabh=?;";
+        String sql = "UPDATE BaoHanh SET mahd=?, ngaylap=?, ngayhethan=? WHERE mabh=?;";
 
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
