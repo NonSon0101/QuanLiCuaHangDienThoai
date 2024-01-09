@@ -33,11 +33,8 @@ public class QuanLiKhachHang extends JFrame {
     private JButton btnXacNhan;
     private JPanel mainPanel;
     private JPanel panelInfo;
-
     private KhachHangService khachHangService;
-
     private DefaultTableModel defaultTableModel;
-
     public QuanLiKhachHang(NhanVien nhanVien){
         setContentPane(mainPanel);
         setTitle("Quản Lí Điện Thoại");
@@ -101,26 +98,28 @@ public class QuanLiKhachHang extends JFrame {
         btnXacNhan.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                DefaultTableModel model = (DefaultTableModel)tabelKhachHang.getModel();
-                int selectedRowIndex = tabelKhachHang.getSelectedRow();
-                int makh = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
-                KhachHang khachHang = new KhachHang();
-                khachHang.setMakh(makh);
-                khachHang.setHokh(textHoKhachHang.getText());
-                khachHang.setTenkh(textTenKhachHang.getText());
-                String loaikh = String.valueOf(comboBoxLoaiKH.getSelectedItem());
-                khachHang.setLoaikh(khachHangService.getMaLoaiKhachHang(loaikh));
-                khachHang.setSodienthoai(textSoDienThoai.getText());
-                khachHang.setDiachi(textDiaChi.getText());
-                try {
-                    khachHangService.updateKhachHang(khachHang);
-                    JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
-                    reloadData(khachHangService.getAllKhachHang());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(mainPanel, "Cập nhật thất bại. Lỗi: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận cập nhật sản phẩm này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel)tabelKhachHang.getModel();
+                    int selectedRowIndex = tabelKhachHang.getSelectedRow();
+                    int makh = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
+                    KhachHang khachHang = new KhachHang();
+                    khachHang.setMakh(makh);
+                    khachHang.setHokh(textHoKhachHang.getText());
+                    khachHang.setTenkh(textTenKhachHang.getText());
+                    String loaikh = String.valueOf(comboBoxLoaiKH.getSelectedItem());
+                    khachHang.setLoaikh(khachHangService.getMaLoaiKhachHang(loaikh));
+                    khachHang.setSodienthoai(textSoDienThoai.getText());
+                    khachHang.setDiachi(textDiaChi.getText());
+                    try {
+                        khachHangService.updateKhachHang(khachHang);
+                        JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
+                        reloadData(khachHangService.getAllKhachHang());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        JOptionPane.showMessageDialog(mainPanel, "Cập nhật thất bại. Lỗi: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-
             }
         });
         refreshBtn.addActionListener(new ActionListener() {
@@ -137,6 +136,7 @@ public class QuanLiKhachHang extends JFrame {
             }
         });
     }
+    // Hàm này lấy mẫu tin từ tabelKhachHang mà người dùng click vào
     private void setInfo(){
         DefaultTableModel model = (DefaultTableModel)tabelKhachHang.getModel();
         int selectedRowIndex = tabelKhachHang.getSelectedRow();
@@ -146,7 +146,8 @@ public class QuanLiKhachHang extends JFrame {
         textSoDienThoai.setText(model.getValueAt(selectedRowIndex, 4).toString());
         textDiaChi.setText(model.getValueAt(selectedRowIndex, 5).toString());
     }
-
+    // Hàm này lấy dữ liệu từ List<ViewKhachHang> đổ vào tabelKhachHang
+    // dùng hàm này để load dữ liệu từ DB bằng cách gọi hàm từ Service để lấy dữ liệu và gán vào List<ViewKhachHang>
     private void reloadData(List<ViewKhachHang> khachHangs){
         defaultTableModel.setRowCount(0);
         for(ViewKhachHang khachHang : khachHangs){

@@ -1,3 +1,4 @@
+/**class này sẽ thực thi interface InputCheck và thêm vào checkInput các logic cần thiết*/
 package GUI;
 
 import Exception.EmptyInputException;
@@ -9,5 +10,4 @@ public class ThrowException implements InputCheck {
             throw new EmptyInputException();
         }
     }
-
 }

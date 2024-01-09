@@ -106,49 +106,57 @@ public class QuanLiNhanVien extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 if(option == 1){
-                    try{
-                        inputCheck.checkInput(textTenNhanVien.getText());
-                        inputCheck.checkInput(textSoDienThoai.getText());
-                        inputCheck.checkInput(textDiaChi.getText());
-                        inputCheck.checkInput(textUsername.getText());
-                        inputCheck.checkInput(textPassWord.getText());
-                        NhanVien nhanVien1 = new NhanVien();
-                        nhanVien1.setTennv(textTenNhanVien.getText());
-                        nhanVien1.setChucvu(String.valueOf(comboBoxChucVu.getSelectedItem()));
-                        nhanVien1.setSodienthoai(textSoDienThoai.getText());
-                        nhanVien1.setDiachi(textDiaChi.getText());
-                        nhanVien1.setUsername(textUsername.getText());
-                        nhanVien1.setPass(textPassWord.getText());
-                        nhanVienService.insertNhanVien(nhanVien1);
-                        reloadData(nhanVienService.getAllNhanVien());
-                        JOptionPane.showMessageDialog(mainPanel, "Thêm Thành Công");
-                    }catch (EmptyInputException e){
-                        JOptionPane.showMessageDialog(mainPanel, "Thêm Thất Bại");
+                    int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận thêm nhân viên này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (res == JOptionPane.YES_OPTION) {
+                        try{
+                            inputCheck.checkInput(textTenNhanVien.getText());
+                            inputCheck.checkInput(textSoDienThoai.getText());
+                            inputCheck.checkInput(textDiaChi.getText());
+                            inputCheck.checkInput(textUsername.getText());
+                            inputCheck.checkInput(textPassWord.getText());
+                            NhanVien nhanVien1 = new NhanVien();
+                            nhanVien1.setTennv(textTenNhanVien.getText());
+                            nhanVien1.setChucvu(String.valueOf(comboBoxChucVu.getSelectedItem()));
+                            nhanVien1.setSodienthoai(textSoDienThoai.getText());
+                            nhanVien1.setDiachi(textDiaChi.getText());
+                            nhanVien1.setUsername(textUsername.getText());
+                            nhanVien1.setPass(textPassWord.getText());
+                            nhanVienService.insertNhanVien(nhanVien1);
+                            reloadData(nhanVienService.getAllNhanVien());
+                            JOptionPane.showMessageDialog(mainPanel, "Thêm Thành Công");
+                        }catch (EmptyInputException e){
+                            JOptionPane.showMessageDialog(mainPanel, "Thêm Thất Bại");
+                        }
                     }
+
                 }else{
-                    try{
-                        DefaultTableModel model = (DefaultTableModel) tableNhanVien.getModel();
-                        int selectedRowIndex = tableNhanVien.getSelectedRow();
-                        int manv = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
-                        inputCheck.checkInput(textTenNhanVien.getText());
-                        inputCheck.checkInput(textSoDienThoai.getText());
-                        inputCheck.checkInput(textDiaChi.getText());
-                        inputCheck.checkInput(textUsername.getText());
-                        inputCheck.checkInput(textPassWord.getText());
-                        NhanVien nhanVien1 = new NhanVien();
-                        nhanVien1.setManv(manv);
-                        nhanVien1.setTennv(textTenNhanVien.getText());
-                        nhanVien1.setChucvu(String.valueOf(comboBoxChucVu.getSelectedItem()));
-                        nhanVien1.setSodienthoai(textSoDienThoai.getText());
-                        nhanVien1.setDiachi(textDiaChi.getText());
-                        nhanVien1.setUsername(textUsername.getText());
-                        nhanVien1.setPass(textPassWord.getText());
-                        nhanVienService.updateNhanVien(nhanVien1);
-                        reloadData(nhanVienService.getAllNhanVien());
-                        JOptionPane.showMessageDialog(mainPanel, "Cập nhật Thành Công");
-                    }catch (EmptyInputException e){
-                        JOptionPane.showMessageDialog(mainPanel, "Cập nhật Thất Bại");
+                    int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận cập nhật nhân viên này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (res == JOptionPane.YES_OPTION) {
+                        try{
+                            DefaultTableModel model = (DefaultTableModel) tableNhanVien.getModel();
+                            int selectedRowIndex = tableNhanVien.getSelectedRow();
+                            int manv = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
+                            inputCheck.checkInput(textTenNhanVien.getText());
+                            inputCheck.checkInput(textSoDienThoai.getText());
+                            inputCheck.checkInput(textDiaChi.getText());
+                            inputCheck.checkInput(textUsername.getText());
+                            inputCheck.checkInput(textPassWord.getText());
+                            NhanVien nhanVien1 = new NhanVien();
+                            nhanVien1.setManv(manv);
+                            nhanVien1.setTennv(textTenNhanVien.getText());
+                            nhanVien1.setChucvu(String.valueOf(comboBoxChucVu.getSelectedItem()));
+                            nhanVien1.setSodienthoai(textSoDienThoai.getText());
+                            nhanVien1.setDiachi(textDiaChi.getText());
+                            nhanVien1.setUsername(textUsername.getText());
+                            nhanVien1.setPass(textPassWord.getText());
+                            nhanVienService.updateNhanVien(nhanVien1);
+                            reloadData(nhanVienService.getAllNhanVien());
+                            JOptionPane.showMessageDialog(mainPanel, "Cập nhật Thành Công");
+                        }catch (EmptyInputException e){
+                            JOptionPane.showMessageDialog(mainPanel, "Cập nhật Thất Bại");
+                        }
                     }
+
                 }
             }
         });
@@ -163,16 +171,20 @@ public class QuanLiNhanVien extends JFrame {
         btnXoa.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                DefaultTableModel model = (DefaultTableModel) tableNhanVien.getModel();
-                int selectedRowIndex = tableNhanVien.getSelectedRow();
-                int manv = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
-                try{
-                    nhanVienService.deleteNhanVien(manv);
-                    reloadData(nhanVienService.getAllNhanVien());
-                    JOptionPane.showMessageDialog(mainPanel, "Xóa thành công");
-                }catch (Exception e){
-                    JOptionPane.showMessageDialog(mainPanel, "Xóa thất bại");
+                int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận xóa nhân viên này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel) tableNhanVien.getModel();
+                    int selectedRowIndex = tableNhanVien.getSelectedRow();
+                    int manv = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
+                    try{
+                        nhanVienService.deleteNhanVien(manv);
+                        reloadData(nhanVienService.getAllNhanVien());
+                        JOptionPane.showMessageDialog(mainPanel, "Xóa thành công");
+                    }catch (Exception e){
+                        JOptionPane.showMessageDialog(mainPanel, "Xóa thất bại");
+                    }
                 }
+
             }
         });
         btnCapNhat.addActionListener(new ActionListener() {

@@ -140,11 +140,15 @@ public class QuanLiPhuKien extends JFrame {
                             phuKien.setLoaipk(maplk);
                             int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
                             phuKien.setMansx(mansx);
-                            phuKienService.addPhuKien(phuKien);
-                            reloadData(phuKienService.getAllPhuKien());
-                            JOptionPane.showMessageDialog(mainPanel, "Thêm thành công");
-                            option = 0;
-                            disableInfo();
+                            int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận thêm sản phẩm này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                            if(res == JOptionPane.YES_OPTION){
+                                phuKienService.addPhuKien(phuKien);
+                                reloadData(phuKienService.getAllPhuKien());
+                                JOptionPane.showMessageDialog(mainPanel, "Thêm thành công");
+                                option = 0;
+                                disableInfo();
+                            }
+
                         }catch (NumberFormatException e){
                             JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
                         }
@@ -170,11 +174,14 @@ public class QuanLiPhuKien extends JFrame {
                             phuKien.setMansx(mansx);
                             phuKien.setLoaipk(maplk);
                             phuKien.setMapk(mapk);
-                            phuKienService.updatePhuKien(phuKien);
-                            reloadData(phuKienService.getAllPhuKien());
-                            JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
-                            option = 0;
-                            disableInfo();
+                            int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận cập nhật sản phẩm này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                            if(res == JOptionPane.YES_OPTION){
+                                phuKienService.updatePhuKien(phuKien);
+                                reloadData(phuKienService.getAllPhuKien());
+                                JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
+                                option = 0;
+                                disableInfo();
+                            }
                         }catch (NumberFormatException e){
                             JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
                         }
@@ -196,15 +203,18 @@ public class QuanLiPhuKien extends JFrame {
         btnXoa.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                int res = JOptionPane.showConfirmDialog(mainPanel, "Bạn chắc chắn muốn xóa ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (res == JOptionPane.YES_OPTION) {
-                    DefaultTableModel model = (DefaultTableModel) tablePhuKien.getModel();
-                    int selectedRowIndex = tablePhuKien.getSelectedRow();
-                    int mansx = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
-                    phuKienService.deletePhuKien(mansx);
-                    reloadData(phuKienService.getAllPhuKien());
+                try{
+                    int res = JOptionPane.showConfirmDialog(mainPanel, "Bạn chắc chắn muốn xóa ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (res == JOptionPane.YES_OPTION) {
+                        DefaultTableModel model = (DefaultTableModel) tablePhuKien.getModel();
+                        int selectedRowIndex = tablePhuKien.getSelectedRow();
+                        int mansx = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
+                        phuKienService.deletePhuKien(mansx);
+                        reloadData(phuKienService.getAllPhuKien());
+                    }
+                }catch (Exception e){
+                    JOptionPane.showMessageDialog(mainPanel, "Xóa thất bại");
                 }
-
             }
         });
         btnCapNhat.addActionListener(new ActionListener() {

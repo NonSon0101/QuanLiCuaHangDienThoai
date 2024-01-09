@@ -19,6 +19,7 @@ public class MainForm extends JFrame {
     private JButton btnQuanLiKhachHang;
     private JButton btnQuanLiNhanVien;
     private JPanel panelDangXuat;
+    private JButton buttonLogo;
     private JPanel panelChild;
 
 
@@ -31,13 +32,13 @@ public class MainForm extends JFrame {
         btnBanHang.setBackground(new Color(0,128,128,255));
         btnQuanLiNhanVien.setBackground(new Color(0,128,128,255));
         btnQuanDienThoai.setBackground(new Color(0,128,128,255));
-        btnDangXuat.setBackground(new Color(0,128,128,255));
+        btnDangXuat.setBackground(new Color(199,0,67));
         btnQuanLiHoaDon.setBackground(new Color(0,128,128,255));
         btnQuanLiKhachHang.setBackground(new Color(0,128,128,255));
         btnQuanLiPhuKien.setBackground(new Color(0,128,128,255));
         setTitle("Quản Cửa Hàng Di Động");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(400, 300);
+        setSize(500, 300);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -71,8 +72,11 @@ public class MainForm extends JFrame {
         btnDangXuat.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                new Login();
-                dispose();
+                int res = JOptionPane.showConfirmDialog(MainPanel, "Bạn muốn đăng xuất ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if(res == JOptionPane.YES_OPTION){
+                    new Login();
+                    dispose();
+                }
             }
         });
         btnBanHang.addActionListener(new ActionListener() {

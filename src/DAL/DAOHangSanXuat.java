@@ -1,4 +1,4 @@
-package DAO;
+package DAL;
 
 import model.HangSanXuat;
 
@@ -9,8 +9,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Lớp DAOHangSanXuat thực hiện các thao tác liên quan đến cơ sở dữ liệu cho đối tượng HangSanXuat.
+ * Bao gồm truy xuất thông tin nhà sản xuất, lấy mã nhà sản xuất từ tên nhà sản xuất,
+ */
 public class DAOHangSanXuat {
     Connection conn;
+
     {
         try {
             conn = JDBCConnection.getJDBCConnection();
@@ -19,6 +24,10 @@ public class DAOHangSanXuat {
         }
     }
 
+    /**
+     * Truy xuất danh sách tất cả nhà sản xuất từ cơ sở dữ liệu.
+     * @return Danh sách các đối tượng HangSanXuat chứa thông tin nhà sản xuất.
+     */
     public List<HangSanXuat> getAllHangSanXuat(){
         List<HangSanXuat> hangSanXuats = new ArrayList<HangSanXuat>();
         String sql = "SELECT * FROM HangSanXuat";
@@ -26,7 +35,6 @@ public class DAOHangSanXuat {
         try {
             PreparedStatement preparedStatement  = conn.prepareStatement(sql);
             ResultSet rs = preparedStatement.executeQuery();
-
 
             while (rs.next()){
                 HangSanXuat hsx = new HangSanXuat();
@@ -40,10 +48,15 @@ public class DAOHangSanXuat {
         }
         return hangSanXuats;
     }
+
+    /**
+     * Lấy mã nhà sản xuất dựa trên tên nhà sản xuất.
+     * @param tenhsx Tên nhà sản xuất cần lấy mã.
+     * @return Mã nhà sản xuất tương ứng với tên nhà sản xuất.
+     */
     public int getMaHangSanXuat(String tenhsx){
-        List<HangSanXuat> hangSanXuats = new ArrayList<HangSanXuat>();
-        String sql = "SELECT mahsx FROM HangSanXuat WHERE tenhsx = ? ";
         int mahsx = 0;
+        String sql = "SELECT mahsx FROM HangSanXuat WHERE tenhsx = ? ";
         try {
             PreparedStatement preparedStatement  = conn.prepareStatement(sql);
             preparedStatement.setString(1, tenhsx);
@@ -58,34 +71,5 @@ public class DAOHangSanXuat {
         }
         return mahsx;
     }
-    public void inserHangSanXuat(String tenhsx){
-        String sql = "INSERT INTO HangSanXuat(tenhsx) VALUES (?);";
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setString(1, tenhsx);
-            int rs = preparedStatement.executeUpdate();
-            System.out.println(rs);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    public void updateHangSanXuat(int mahsx, String tenhsx){
-        String sql = "UPDATE HangSanXuat Set tenhsx=? WHERE mahsx=?;";
-        try {
-            PreparedStatement  preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setString(1, tenhsx);
-            preparedStatement.setInt(2, mahsx);
-            int rs = preparedStatement.executeUpdate();
-            System.out.println(rs);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static void main(String[] args){
-        DAOHangSanXuat hsx = new DAOHangSanXuat();
-        int a = hsx.getMaHangSanXuat("Iphone");
-
-        System.out.println(a);
-    }
 }

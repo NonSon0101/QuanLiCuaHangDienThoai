@@ -41,8 +41,7 @@ public class QuanLiHoaDon extends JFrame {
     private JLabel labelThanhTien;
     private JScrollPane panelTable;
     private JScrollPane panelTable2;
-    private JButton btnXoaSanPham;
-    private JButton btnXoaHoaDon;
+    private JButton btnHoan;
     private JTextField textMaSanPham;
     private JLabel labelMaSanPham;
     private JButton btnQuayVe;
@@ -52,12 +51,19 @@ public class QuanLiHoaDon extends JFrame {
     private JPanel panelBtnHD;
     private JPanel panelLabel1;
     private JPanel panelLabel2;
+    private JButton btnNhapKho;
+    private JTable tableSanPhamHoan;
+    private JPanel panelBtnNhapKho;
+    private JPanel panelBtnHoan;
+    private JScrollPane panelTable3;
+    private JPanel panelSanPhamHoan;
     private JScrollPane panelHThanhTien;
     private HoaDon hoaDon;
     private HoaDonService hoaDonService;
     private ChiTietHoaDonService chiTietHoaDonService;
     private DefaultTableModel defaultTableModel;
     private DefaultTableModel defaultTableModel1;
+    private DefaultTableModel defaultTableModel2;
     private ChiTietHoaDonDienThoai chiTietHoaDonDienThoai;
     private ChiTietHoaDonPhuKien chiTietHoaDonPhuKien;
 
@@ -72,31 +78,49 @@ public class QuanLiHoaDon extends JFrame {
         panelBtnHD.setBackground(new Color(32,178,170,255));
         panelTable.setBackground(new Color(32,178,170,255));
         panelTable2.setBackground(new Color(32,178,170,255));
-        btnXoaHoaDon.setBackground(Color.RED);
-        btnXoaSanPham.setBackground(Color.RED);
         btnQuayVe.setBackground(new Color(11,193,105,255));
         panelLabel1.setBackground(new Color(0,128,128,255));
         panelLabel2.setBackground(new Color(0,128,128,255));
+        panelBtnHoan.setBackground(new Color(32,178,170,255));
+        panelBtnNhapKho.setBackground(new Color(32,178,170,255));
+        panelSanPhamHoan.setBackground(new Color(0,128,128,255));
+        btnHoan.setBackground(new Color(83,150,237,255));
+        btnNhapKho.setBackground(new Color(62,183,114,255));
         setTitle("Quản Lí Hóa Đơn");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1100, 700);
         setLocationRelativeTo(null);
         setVisible(true);
 
-        String chucvu = nhanVien.getChucvu();
-        if(chucvu.equals("Nhân viên")){
-           btnXoaHoaDon.setVisible(false);
-        }
-
         hoaDon = new HoaDon();
         hoaDonService = new HoaDonService();
         defaultTableModel = new DefaultTableModel();
         tableHoaDon.setModel(defaultTableModel);
+        chiTietHoaDonDienThoai = new ChiTietHoaDonDienThoai();
+        chiTietHoaDonPhuKien = new ChiTietHoaDonPhuKien();
+        chiTietHoaDonService = new ChiTietHoaDonService();
+        defaultTableModel1 = new DefaultTableModel();
+        tableChitietHoaDon.setModel(defaultTableModel1);
+        defaultTableModel2 = new DefaultTableModel();
+        tableSanPhamHoan.setModel(defaultTableModel2);
 
         defaultTableModel.addColumn("Mã Hóa Đơn");
         defaultTableModel.addColumn("Tên Khách Hàng");
         defaultTableModel.addColumn("Tên Nhân Viên");
         defaultTableModel.addColumn("Ngày Lập");
+
+        defaultTableModel1.addColumn("Mã Sản Phẩm");
+        defaultTableModel1.addColumn("Tên Sản Phẩm");
+        defaultTableModel1.addColumn("Loại Sản Phẩm");
+        defaultTableModel1.addColumn("Giá Tiền");
+        defaultTableModel1.addColumn("Giảm Giá");
+        defaultTableModel1.addColumn("Số Lượng");
+
+        defaultTableModel2.addColumn("Mã Hóa Đơn");
+        defaultTableModel2.addColumn("Mã Sản Phẩm");
+        defaultTableModel2.addColumn("Sản Phẩm");
+        defaultTableModel2.addColumn("Loại Sản Phẩm");
+        defaultTableModel2.addColumn("Số Lượng");
 
         loadHoaDon();
 
@@ -114,20 +138,6 @@ public class QuanLiHoaDon extends JFrame {
                 textKhachHang.setText(model.getValueAt(selectedRowIndex, 1).toString());
                 textNhanVien.setText(model.getValueAt(selectedRowIndex, 2).toString());
                 textNgayLap.setText(model.getValueAt(selectedRowIndex, 3).toString());
-
-
-                chiTietHoaDonDienThoai = new ChiTietHoaDonDienThoai();
-                chiTietHoaDonPhuKien = new ChiTietHoaDonPhuKien();
-                chiTietHoaDonService = new ChiTietHoaDonService();
-                defaultTableModel1 = new DefaultTableModel();
-                tableChitietHoaDon.setModel(defaultTableModel1);
-
-                defaultTableModel1.addColumn("Mã Sản Phẩm");
-                defaultTableModel1.addColumn("Tên Sản Phẩm");
-                defaultTableModel1.addColumn("Loại Sản Phẩm");
-                defaultTableModel1.addColumn("Giá Tiền");
-                defaultTableModel1.addColumn("Giảm Giá");
-                defaultTableModel1.addColumn("Số Lượng");
 
                 int mahd = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
                 List<ChiTietHoaDonDienThoai> ctdt = chiTietHoaDonService.getChiTietHoaDonDienThoai(mahd);
@@ -150,7 +160,7 @@ public class QuanLiHoaDon extends JFrame {
                 }
                 textTongTien.setText(decimalFormat.format(tongtien));
                 loadSanPham();
-
+                loadSanPhamHoan(mahd);
             }
         });
         tableChitietHoaDon.addMouseListener(new MouseAdapter() {
@@ -174,50 +184,42 @@ public class QuanLiHoaDon extends JFrame {
                 textThanhTien.setText(decimalFormat.format(thanhtien));
             }
         });
-        btnXoaSanPham.addActionListener(new ActionListener() {
+        btnHoan.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                DefaultTableModel model = (DefaultTableModel) tableChitietHoaDon.getModel();
-                int selectedRowIndex = tableChitietHoaDon.getSelectedRow();
-                int masp = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
-                int soluong = Integer.parseInt(model.getValueAt(selectedRowIndex, 5).toString());
-                String loaisp = model.getValueAt(selectedRowIndex, 2).toString();
-                if (loaisp == "DT") {
-                    try{
-                        chiTietHoaDonService.addSoLuongDienThoai(masp, soluong);
-                        chiTietHoaDonService.deleteSanPhamDT(masp);
-                        JOptionPane.showMessageDialog(mainPanel, "Xóa thành công");
-                    }catch (Exception e){
-                        JOptionPane.showMessageDialog(mainPanel, "Lỗi, xóa Thất bại");
+                int res = JOptionPane.showConfirmDialog(mainPanel, "xác nhận hoàn sản phẩm này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel) tableChitietHoaDon.getModel();
+                    int selectedRowIndex = tableChitietHoaDon.getSelectedRow();
+                    int mahd = Integer.parseInt(textMaHd.getText());
+                    int masp = Integer.parseInt(textMaSanPham.getText());
+                    int soluong = Integer.parseInt(textSoLuong.getText());
+                    String loaisp = model.getValueAt(selectedRowIndex, 2).toString();
+                    HoanSanPham hoanSanPham = new HoanSanPham();
+                    hoanSanPham.setMahd(mahd);
+                    hoanSanPham.setMasp(masp);
+                    hoanSanPham.setSoluong(soluong);
+                    hoanSanPham.setLoaisanpham(loaisp);
+                    chiTietHoaDonService.insertSanPhamHoan(hoanSanPham);
+                    if (loaisp.equals("DT")) {
+                        try{
+                            chiTietHoaDonService.deleteSanPhamDT(masp);
+                            JOptionPane.showMessageDialog(mainPanel, "Hoàn Sản Phẩm Thành Công");
+                        }catch (Exception e){
+                            JOptionPane.showMessageDialog(mainPanel, "Lỗi, Thất bại");
+                        }
                     }
-                }
-                if (loaisp == "PK") {
-                    try {
-                        chiTietHoaDonService.addSoLuongPhuKien(masp, soluong);
-                        chiTietHoaDonService.deleteSanPhamPK(masp);
-                        JOptionPane.showMessageDialog(mainPanel, "Xóa thành công");
-                    }catch (Exception e){
-                        JOptionPane.showMessageDialog(mainPanel, "Lỗi, xóa Thất bại");
+                    if (loaisp.equals("PK")) {
+                        try {
+                            chiTietHoaDonService.deleteSanPhamPK(masp);
+                            JOptionPane.showMessageDialog(mainPanel, "Hoàn Sản Phẩm Thành Công");
+                        }catch (Exception e){
+                            JOptionPane.showMessageDialog(mainPanel, "Lỗi, Thất bại");
+                        }
                     }
+                    loadSanPham();
+                    loadSanPhamHoan(mahd);
                 }
-                loadSanPham();
-            }
-        });
-        btnXoaHoaDon.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                DefaultTableModel model = (DefaultTableModel) tableChitietHoaDon.getModel();
-                int selectedRowIndex = tableChitietHoaDon.getSelectedRow();
-                int mahd = Integer.parseInt(textMaHd.getText());
-                try{
-                    chiTietHoaDonService.deleteSanPhamHoaDon(mahd);
-                    hoaDonService.deleteHoaDon(mahd);
-                    defaultTableModel1.setRowCount(0);
-                    JOptionPane.showMessageDialog(mainPanel, "Xóa thành công");
-                }catch (Exception e){
-                    JOptionPane.showMessageDialog(mainPanel, "Lỗi, xóa Thất bại");
-                }
-                loadHoaDon();
             }
         });
         btnQuayVe.addActionListener(new ActionListener() {
@@ -227,8 +229,48 @@ public class QuanLiHoaDon extends JFrame {
                 dispose();
             }
         });
-    }
+        btnNhapKho.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                int res = JOptionPane.showConfirmDialog(mainPanel, "xác nhận nhập kho sản phẩm này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel) tableSanPhamHoan.getModel();
+                    int selectedRowIndex = tableSanPhamHoan.getSelectedRow();
+                    int mahd = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
+                    int masp = Integer.parseInt(model.getValueAt(selectedRowIndex, 1).toString());
+                    int soluong = Integer.parseInt(model.getValueAt(selectedRowIndex, 4).toString());
+                    String loaisp = model.getValueAt(selectedRowIndex, 3).toString();
+                    if (loaisp.equals("DT")) {
+                        try{
+                            chiTietHoaDonService.addSoLuongDienThoai(masp, soluong);
+                            chiTietHoaDonService.deleteSanPhamHoan(mahd,masp);
+                            JOptionPane.showMessageDialog(mainPanel, "Nhập Kho Thành Công");
+                        }catch (Exception e){
+                            JOptionPane.showMessageDialog(mainPanel, "Lỗi, Thất bại");
+                        }
+                    }
+                    if (loaisp.equals("PK")) {
+                        try {
+                            chiTietHoaDonService.addSoLuongPhuKien(masp, soluong);
+                            chiTietHoaDonService.deleteSanPhamHoan(mahd,masp);
+                            JOptionPane.showMessageDialog(mainPanel, "Nhập Kho Thành Công");
+                        }catch (Exception e){
+                            JOptionPane.showMessageDialog(mainPanel, "Lỗi, Thất bại");
+                        }
+                    }
+                    loadSanPhamHoan(mahd);
+                }
 
+            }
+        });
+    }
+    private void loadSanPhamHoan(int mahd){
+        defaultTableModel2.setRowCount(0);
+        List<ViewSanPhamHoan> viewSanPhamHoans = chiTietHoaDonService.getSanPhamHoan(mahd);
+        for(ViewSanPhamHoan viewSanPhamHoan: viewSanPhamHoans){
+            defaultTableModel2.addRow(new Object[]{viewSanPhamHoan.getMahd(), viewSanPhamHoan.getMasp(), viewSanPhamHoan.getTensanpham(), viewSanPhamHoan.getLoaisanpham(), viewSanPhamHoan.getSoluong()});
+        }
+    }
     private void loadHoaDon() {
         defaultTableModel.setRowCount(0);
         List<ViewHoaDon> hoaDons = hoaDonService.getAllHoaDon();
@@ -236,7 +278,6 @@ public class QuanLiHoaDon extends JFrame {
             defaultTableModel.addRow(new Object[]{hoaDon.getMahd(), hoaDon.getKhachhang(), hoaDon.getNhanvien(), hoaDon.getNgaylap()});
         }
     }
-
     private void loadSanPham() {
         defaultTableModel1.setRowCount(0);
         DefaultTableModel model = (DefaultTableModel) tableHoaDon.getModel();
@@ -247,12 +288,10 @@ public class QuanLiHoaDon extends JFrame {
         for (ChiTietHoaDonDienThoai chiTietHoaDonDienThoai : ctdt) {
             defaultTableModel1.addRow(new Object[]{chiTietHoaDonDienThoai.getMadt(), chiTietHoaDonDienThoai.getTendt(), "DT", chiTietHoaDonDienThoai.getGiaban(),
                     chiTietHoaDonDienThoai.getPhamtramgiam(), chiTietHoaDonDienThoai.getSoluong()});
-
         }
         for (ChiTietHoaDonPhuKien chiTietHoaDonPhuKien1 : ctpk) {
             defaultTableModel1.addRow(new Object[]{chiTietHoaDonPhuKien1.getMapk(), chiTietHoaDonPhuKien1.getTenpk(), "PK", chiTietHoaDonPhuKien1.getGiaban(),
                     chiTietHoaDonPhuKien1.getPhamtramgiam(), chiTietHoaDonPhuKien1.getSoluong()});
-
         }
     }
 }

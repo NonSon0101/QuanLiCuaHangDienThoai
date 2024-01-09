@@ -45,7 +45,6 @@ public class BanHang extends JFrame {
     private JSpinner spinnerSoLuong;
     private JTextField textTongTien;
     private JTextField textLoaiSanPham;
-    private JTextField textNhanVien;
     private JComboBox comboBoxLoaiKH;
     private JPanel panelPhuKien;
     private JPanel panelListSanPham;
@@ -58,6 +57,7 @@ public class BanHang extends JFrame {
     private JPanel panelDienThoai;
     private JPanel panelEditSanPham;
     private JPanel panelBtn;
+    private JLabel labelTenNhanVien;
     private JTextField textSoLuong;
     DienThoaiService dienThoaiService;
     DefaultTableModel defaultTableModelDienThoai;
@@ -104,7 +104,7 @@ public class BanHang extends JFrame {
         btnThemSanPham.setBackground(new Color(83,150,237,255));
         btnTimKiem.setBackground(new Color(62,183,114,255));
         btnQuayVe.setBackground(new Color(62,183,114,255));
-        tableDienThoai.setBackground(new Color(0,128,128,255));
+        labelTenNhanVien.setBackground(new Color(156, 255, 4));
         setTitle("Bán Hàng");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1400, 800);
@@ -127,7 +127,7 @@ public class BanHang extends JFrame {
         khachHangService = new KhachHangService();
         hoaDonService = new HoaDonService();
         chiTietHoaDonService = new ChiTietHoaDonService();
-        textNhanVien.setText(nhanVien.getTennv());
+        labelTenNhanVien.setText(nhanVien.getTennv());
         inputChecker = new ThrowException();
 
         defaultTableModelDienThoai.addColumn("Ma DT");
@@ -187,6 +187,7 @@ public class BanHang extends JFrame {
                 giamgia = Integer.parseInt(model.getValueAt(selectedRowIndex, 5).toString());
             }
         });
+
         tablePhuKien.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -210,9 +211,13 @@ public class BanHang extends JFrame {
             @Override
             public void stateChanged(ChangeEvent changeEvent) {
                 int soluong = (int)spinnerSoLuong.getValue();
-                float tiengiam = giaban*((float)giamgia / 100);
-                thanhtien = (giaban - tiengiam)*soluong;
-                textThanhTien.setText(decimalFormat.format(thanhtien));
+                if(soluong < 0){
+                    spinnerSoLuong.setValue(0);
+                }else{
+                    float tiengiam = giaban*((float)giamgia / 100);
+                    thanhtien = (giaban - tiengiam)*soluong;
+                    textThanhTien.setText(decimalFormat.format(thanhtien));
+                }
             }
         });
 
@@ -239,17 +244,21 @@ public class BanHang extends JFrame {
         btnXoaSanPham.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                DefaultTableModel model = (DefaultTableModel)tableSanPham.getModel();
-                int selectedRowIndex = tableSanPham.getSelectedRow();
-                if (selectedRowIndex != -1) {
-                    int giatien = Integer.parseInt(model.getValueAt(selectedRowIndex, 6).toString());
-                    tongtien -= giatien;
-                    defaultTableModelSanPham.removeRow(selectedRowIndex);
-                    textTongTien.setText(decimalFormat.format(tongtien));
-                    defaultTableModelSanPham.fireTableDataChanged();
-                } else {
-                    JOptionPane.showMessageDialog(mainPanel, "Vui lòng chọn cột để xóa");
+                int res = JOptionPane.showConfirmDialog(mainPanel, "Bạn chắc chắn muốn xóa ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel)tableSanPham.getModel();
+                    int selectedRowIndex = tableSanPham.getSelectedRow();
+                    if (selectedRowIndex != -1) {
+                        int giatien = Integer.parseInt(model.getValueAt(selectedRowIndex, 6).toString());
+                        tongtien -= giatien;
+                        defaultTableModelSanPham.removeRow(selectedRowIndex);
+                        textTongTien.setText(decimalFormat.format(tongtien));
+                        defaultTableModelSanPham.fireTableDataChanged();
+                    } else {
+                        JOptionPane.showMessageDialog(mainPanel, "Vui lòng chọn cột để xóa");
+                    }
                 }
+
             }
         });
         btnTimKiem.addActionListener(new ActionListener() {
@@ -272,61 +281,66 @@ public class BanHang extends JFrame {
         btnXoaHet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                DefaultTableModel model = (DefaultTableModel)tableSanPham.getModel();
-                int rowCount = model.getRowCount();
-                for (int i = rowCount - 1; i >= 0; i--) {
-                    model.removeRow(i);
+                int res = JOptionPane.showConfirmDialog(mainPanel, "Bạn chắc chắn muốn xóa ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    DefaultTableModel model = (DefaultTableModel)tableSanPham.getModel();
+                    int rowCount = model.getRowCount();
+                    for (int i = rowCount - 1; i >= 0; i--) {
+                        model.removeRow(i);
+                    }
+                    textTongTien.setText("0");
                 }
-                textTongTien.setText("0");
             }
         });
         btnXacNhan.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                HoaDon addHoaDon = new HoaDon();
-                String sodienthoai = textSoDienThoai.getText();
-                ViewKhachHang khachHang = khachHangService.findKhachHang(sodienthoai);
-                int makh = khachHang.getMakh();
-                addHoaDon.setMakh(makh);
-                addHoaDon.setManv(nhanVien.getManv());
-                LocalDate currentDate = LocalDate.now();
-                Date sqlDate = Date.valueOf(currentDate);
-                addHoaDon.setNgaylap(sqlDate);
-                hoaDonService.insertHoaDon(addHoaDon);
+                int res = JOptionPane.showConfirmDialog(mainPanel, "xác nhận tạo hóa đơn này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    HoaDon addHoaDon = new HoaDon();
+                    String sodienthoai = textSoDienThoai.getText();
+                    ViewKhachHang khachHang = khachHangService.findKhachHang(sodienthoai);
+                    int makh = khachHang.getMakh();
+                    addHoaDon.setMakh(makh);
+                    addHoaDon.setManv(nhanVien.getManv());
+                    LocalDate currentDate = LocalDate.now();
+                    Date sqlDate = Date.valueOf(currentDate);
+                    addHoaDon.setNgaylap(sqlDate);
+                    hoaDonService.insertHoaDon(addHoaDon);
 
-                int mahd = hoaDonService.getMaHoaDonCuoiCung();
-                DefaultTableModel tableModel = (DefaultTableModel) tableSanPham.getModel();
-                int rowCount = tableModel.getRowCount();
-                try {
-                    for (int row = 0; row < rowCount; row++) {
-                        int masp = Integer.parseInt(String.valueOf(tableModel.getValueAt(row, 0)));
-                        int soluong = Integer.parseInt(String.valueOf(tableModel.getValueAt(row, 3)));
-                        String loaisp = String.valueOf(tableModel.getValueAt(row, 2));
+                    int mahd = hoaDonService.getMaHoaDonCuoiCung();
+                    DefaultTableModel tableModel = (DefaultTableModel) tableSanPham.getModel();
+                    int rowCount = tableModel.getRowCount();
+                    try {
+                        for (int row = 0; row < rowCount; row++) {
+                            int masp = Integer.parseInt(String.valueOf(tableModel.getValueAt(row, 0)));
+                            int soluong = Integer.parseInt(String.valueOf(tableModel.getValueAt(row, 3)));
+                            String loaisp = String.valueOf(tableModel.getValueAt(row, 2));
 
-                        if (loaisp.equals("DT")){
-                            muadt mdt = new muadt();
-                            mdt.setMahd(mahd);
-                            mdt.setMadt(masp);
-                            mdt.setSoluong(soluong);
+                            if (loaisp.equals("DT")){
+                                muadt mdt = new muadt();
+                                mdt.setMahd(mahd);
+                                mdt.setMadt(masp);
+                                mdt.setSoluong(soluong);
 
-                            chiTietHoaDonService.insertMuadt(mdt);
-                            chiTietHoaDonService.subSoLuongDienThoai(masp, soluong);
-                        }else{
-                            muapk mpk = new muapk();
-                            mpk.setMahd(mahd);
-                            mpk.setMapk(masp);
-                            mpk.setSoluong(soluong);
-                            chiTietHoaDonService.insertMuapk(mpk);
-                            chiTietHoaDonService.subSoLuongPhuKien(masp, soluong);
+                                chiTietHoaDonService.insertMuadt(mdt);
+                                chiTietHoaDonService.subSoLuongDienThoai(masp, soluong);
+                            }else{
+                                muapk mpk = new muapk();
+                                mpk.setMahd(mahd);
+                                mpk.setMapk(masp);
+                                mpk.setSoluong(soluong);
+                                chiTietHoaDonService.insertMuapk(mpk);
+                                chiTietHoaDonService.subSoLuongPhuKien(masp, soluong);
+                            }
                         }
+                        reloadDataPhuKien(phuKienService.getAllPhuKien());
+                        reloadDataDienThoai(dienThoaiService.getAllDienThoai());
+                        JOptionPane.showMessageDialog(mainPanel, "Tạo hóa đơn thành công");
+                    }catch (Exception e){
+                        JOptionPane.showMessageDialog(mainPanel, "Tạo hóa đơn thất bại");
                     }
-                    reloadDataPhuKien(phuKienService.getAllPhuKien());
-                    reloadDataDienThoai(dienThoaiService.getAllDienThoai());
-                    JOptionPane.showMessageDialog(mainPanel, "Tạo hóa đơn thành công");
-                }catch (Exception e){
-                    JOptionPane.showMessageDialog(mainPanel, "Tạo hóa đơn thất bại");
                 }
-
             }
         });
         btnQuayVe.addActionListener(new ActionListener() {
@@ -339,25 +353,28 @@ public class BanHang extends JFrame {
         btnThemKhachHang.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                int res = JOptionPane.showConfirmDialog(mainPanel, "xác nhận thêm khách hàng này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
+                    try{
+                        inputChecker.checkInput(textHoKhachHang.getText());
+                        inputChecker.checkInput(textTenKhachHang.getText());
+                        inputChecker.checkInput(textSoDienThoai.getText());
+                        inputChecker.checkInput(textDiaChi.getText());
+                        KhachHang addKhachHang = new KhachHang();
+                        addKhachHang.setHokh(textHoKhachHang.getText());
+                        addKhachHang.setTenkh(textTenKhachHang.getText());
+                        String loaikh = String.valueOf(comboBoxLoaiKH.getSelectedItem());
+                        addKhachHang.setLoaikh(khachHangService.getMaLoaiKhachHang(loaikh));
+                        addKhachHang.setSodienthoai(textSoDienThoai.getText());
+                        addKhachHang.setDiachi(textDiaChi.getText());
+                        khachHangService.insertKhachHang(addKhachHang);
 
-                try{
-                    inputChecker.checkInput(textHoKhachHang.getText());
-                    inputChecker.checkInput(textTenKhachHang.getText());
-                    inputChecker.checkInput(textSoDienThoai.getText());
-                    inputChecker.checkInput(textDiaChi.getText());
-                    KhachHang addKhachHang = new KhachHang();
-                    addKhachHang.setHokh(textHoKhachHang.getText());
-                    addKhachHang.setTenkh(textTenKhachHang.getText());
-                    String loaikh = String.valueOf(comboBoxLoaiKH.getSelectedItem());
-                    addKhachHang.setLoaikh(khachHangService.getMaLoaiKhachHang(loaikh));
-                    addKhachHang.setSodienthoai(textSoDienThoai.getText());
-                    addKhachHang.setDiachi(textDiaChi.getText());
-                    khachHangService.insertKhachHang(addKhachHang);
-
-                    JOptionPane.showMessageDialog(mainPanel, "Thêm khách hàng thành công");
-                }catch (EmptyInputException e){
-                    JOptionPane.showMessageDialog(mainPanel, "Thêm khách hàng thất bại");
+                        JOptionPane.showMessageDialog(mainPanel, "Thêm khách hàng thành công");
+                    }catch (EmptyInputException e){
+                        JOptionPane.showMessageDialog(mainPanel, "Thêm khách hàng thất bại");
+                    }
                 }
+
             }
         });
         checkKhachMoi.addChangeListener(new ChangeListener() {

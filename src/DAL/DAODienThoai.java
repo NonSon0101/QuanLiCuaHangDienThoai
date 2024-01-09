@@ -1,8 +1,7 @@
-package DAO;
+package DAL;
 
 import model.DienThoai;
 import model.ViewDienThoai;
-
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Lớp DAODienThoai thực hiện các thao tác liên quan đến cơ sở dữ liệu cho đối tượng DienThoai.
+ * Bao gồm truy xuất thông tin điện thoại, thêm mới, cập nhật, và xóa điện thoại.
+ */
 public class DAODienThoai {
     Connection conn;
+
     {
         try {
             conn = JDBCConnection.getJDBCConnection();
@@ -19,6 +24,11 @@ public class DAODienThoai {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Truy xuất danh sách tất cả điện thoại và thông tin liên quan từ cơ sở dữ liệu.
+     * @return Danh sách các đối tượng ViewDienThoai chứa thông tin điện thoại.
+     */
     public List<ViewDienThoai> getAllDienThoai() {
         List<ViewDienThoai> dienThoais = new ArrayList<ViewDienThoai>();
         String sql = "SELECT DienThoai.madt, DienThoai.tendt, HangSanXuat.tenhsx, DienThoai.soluong, DienThoai.giaban, DienThoai.phantramgiam FROM DienThoai JOIN HangSanXuat ON DienThoai.mansx = HangSanXuat.mahsx;";
@@ -43,6 +53,10 @@ public class DAODienThoai {
         return dienThoais;
     }
 
+    /**
+     * Thêm mới một đối tượng DienThoai vào cơ sở dữ liệu.
+     * @param dienThoai Đối tượng DienThoai cần thêm mới.
+     */
     public void insertDienThoai(DienThoai dienThoai){
         String sql = "INSERT INTO DienThoai (tendt, mansx, soluong, giaban, phantramgiam) VALUES(?, ?, ?, ?, ?);";
 
@@ -60,6 +74,11 @@ public class DAODienThoai {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Cập nhật thông tin một đối tượng DienThoai trong cơ sở dữ liệu.
+     * @param dienThoai Đối tượng DienThoai cần cập nhật.
+     */
     public void updateDienThoai(DienThoai dienThoai){
         String sql = "UPDATE DienThoai SET tendt= ?, mansx= ?, soluong= ?, giaban= ?, phantramgiam= ? WHERE madt=?;";
         try {
@@ -76,9 +95,13 @@ public class DAODienThoai {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
+    /**
+     * Tăng số lượng của một điện thoại trong cơ sở dữ liệu.
+     * @param madt Mã điện thoại cần tăng số lượng.
+     * @param soluong Số lượng cần thêm vào.
+     */
     public void addSoLuong(int madt, int soluong){
         String sql = "UPDATE DienThoai SET soluong = soluong + ? WHERE madt = ?";
         try {
@@ -91,6 +114,12 @@ public class DAODienThoai {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Giảm số lượng của một điện thoại trong cơ sở dữ liệu.
+     * @param madt Mã điện thoại cần giảm số lượng.
+     * @param soluong Số lượng cần trừ đi.
+     */
     public void subSoLuong(int madt, int soluong){
         String sql = "UPDATE DienThoai SET soluong = soluong - ? WHERE madt = ?";
         try {
@@ -103,6 +132,11 @@ public class DAODienThoai {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Xóa một đối tượng DienThoai khỏi cơ sở dữ liệu dựa trên mã điện thoại.
+     * @param madt Mã điện thoại cần xóa.
+     */
     public void deleteDienThoai(int madt){
         String sql = "DELETE FROM DienThoai WHERE madt=?;";
         try {
@@ -113,13 +147,8 @@ public class DAODienThoai {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
-    public static void main(String[] args){
-
-    }
-
-
 }
+
 
 

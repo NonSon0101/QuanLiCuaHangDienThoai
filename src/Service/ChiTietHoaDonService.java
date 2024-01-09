@@ -1,13 +1,30 @@
+/**
+ * ChiTietHoaDonService cung cấp các chức năng liên quan đến chi tiết hóa đơn.
+ * Bao gồm quản lý và truy xuất chi tiết điện thoại di động và phụ kiện đã mua,
+ * cũng như cập nhật số lượng tồn kho và thực hiện các thao tác trên cơ sở dữ liệu liên quan.
+ *
+ * Các phương thức bao gồm:
+ * - Truy xuất chi tiết điện thoại di động và phụ kiện đã mua cho một hóa đơn cụ thể.
+ * - Chèn các bản ghi cho điện thoại di động và phụ kiện đã mua vào cơ sở dữ liệu.
+ * - Cập nhật số lượng điện thoại di động và phụ kiện trong kho.
+ * - Xóa điện thoại di động và phụ kiện đã mua khỏi hóa đơn và cập nhật cơ sở dữ liệu.
+ *
+ * Tương tác với các Đối tượng Truy cập Dữ liệu (DAO) sau:
+ * - DAOMuaDienThoai: Quản lý các thao tác truy cập dữ liệu cho điện thoại di động đã mua.
+ * - DAOMuaPhuKien: Quản lý các thao tác truy cập dữ liệu cho phụ kiện đã mua.
+ * - DAODienThoai: Quản lý các thao tác truy cập dữ liệu cho điện thoại di động trong kho.
+ * - DAOPhuKien: Quản lý các thao tác truy cập dữ liệu cho phụ kiện trong kho.
+ *
+ * Ví dụ sử dụng:
+ * ```java
+ * ChiTietHoaDonService chiTietHoaDonService = new ChiTietHoaDonService();
+ * List<ChiTietHoaDonDienThoai> chiTietDTList = chiTietHoaDonService.getChiTietHoaDonDienThoai(maHoaDon);
+ * List<ChiTietHoaDonPhuKien> chiTietPKList = chiTietHoaDonService.getChiTietHoaDonPhuKien(maHoaDon);
+ */
 package Service;
 
-import DAO.DAOMuaDienThoai;
-import DAO.DAOMuaPhuKien;
-import DAO.DAODienThoai;
-import DAO.DAOPhuKien;
-import model.ChiTietHoaDonDienThoai;
-import model.ChiTietHoaDonPhuKien;
-import model.muadt;
-import model.muapk;
+import DAL.*;
+import model.*;
 
 import java.util.List;
 
@@ -16,11 +33,13 @@ public class ChiTietHoaDonService {
     DAOMuaPhuKien daoMuaPhuKien;
     DAODienThoai daoDienThoai;
     DAOPhuKien daoPhuKien;
+    DAOHoaDon daoHoaDon;
     public ChiTietHoaDonService(){
         daoMuaDienThoai = new DAOMuaDienThoai();
         daoMuaPhuKien = new DAOMuaPhuKien();
         daoDienThoai = new DAODienThoai();
         daoPhuKien = new DAOPhuKien();
+        daoHoaDon = new DAOHoaDon();
     }
 
     public List<ChiTietHoaDonDienThoai> getChiTietHoaDonDienThoai(int mahd){
@@ -56,8 +75,13 @@ public class ChiTietHoaDonService {
     public void deleteSanPhamPK(int mapk){
         daoMuaPhuKien.deleteSanPham(mapk);
     }
-    public void deleteSanPhamHoaDon(int mahd){
-        daoMuaPhuKien.deleteSPHoaDon(mahd);
-        daoMuaDienThoai.deleteSPHoaDon(mahd);
+    public List<ViewSanPhamHoan> getSanPhamHoan(int mahd){
+        return daoHoaDon.getSanPhamHoan(mahd);
+    }
+    public void insertSanPhamHoan(HoanSanPham hoanSanPham){
+        daoHoaDon.insertSanPhamHoan(hoanSanPham);
+    }
+    public void deleteSanPhamHoan(int mahd, int masp){
+        daoHoaDon.deleteSanPhamHoan(mahd,masp);
     }
 }

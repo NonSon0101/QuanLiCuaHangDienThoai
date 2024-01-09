@@ -42,6 +42,8 @@ public class QuanLiDienThoai extends JFrame{
     DefaultTableModel defaultTableModel;
     DienThoai dienThoai;
     DecimalFormat decimalFormat = new DecimalFormat("#,###");
+    /*option là biến để chương trình phân biệt là thêm(option = 1) hay cập nhật(option = 2) khi ấn nút xác nhận*/
+    // biến option thay đổi khi người dùng ấn vào btnCapNhat và btnThem
     int option = 0;
     public QuanLiDienThoai(NhanVien nhanVien){
         setContentPane(mainPanel);
@@ -99,6 +101,33 @@ public class QuanLiDienThoai extends JFrame{
                 reloadData(dienThoaiService.getAllDienThoai());
             }
         });
+
+        tableDienThoai.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                setInfo();
+                disableInfo();
+            }
+        });
+        btnXoa.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try{
+                    int res = JOptionPane.showConfirmDialog(mainPanel, "Bạn chắc chắn muốn xóa ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if(res == JOptionPane.YES_OPTION){
+                        DefaultTableModel model = (DefaultTableModel)tableDienThoai.getModel();
+                        int selectedRowIndex = tableDienThoai.getSelectedRow();
+                        int madt = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
+                        dienThoaiService.deleteDienThoai(madt);
+                        reloadData(dienThoaiService.getAllDienThoai());
+                        JOptionPane.showMessageDialog(mainPanel, "Xóa thành công!");
+                    }
+                }catch (Exception e){
+                    JOptionPane.showMessageDialog(mainPanel, "Xóa thất bại!");
+                }
+            }
+        });
         btnThem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -111,31 +140,10 @@ public class QuanLiDienThoai extends JFrame{
             }
         });
 
-        tableDienThoai.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                setInfo();
-            }
-        });
-        btnXoa.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                int res = JOptionPane.showConfirmDialog(mainPanel, "Bạn chắc chắn muốn xóa ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if(res == JOptionPane.YES_OPTION){
-                    DefaultTableModel model = (DefaultTableModel)tableDienThoai.getModel();
-                    int selectedRowIndex = tableDienThoai.getSelectedRow();
-                    int madt = Integer.parseInt(model.getValueAt(selectedRowIndex, 0).toString());
-                    dienThoaiService.deleteDienThoai(madt);
-                    reloadData(dienThoaiService.getAllDienThoai());
-                }
-            }
-        });
         btnCapNhat.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 enableInfo();
-                setInfo();
                 option = 2;
             }
         });
@@ -152,11 +160,15 @@ public class QuanLiDienThoai extends JFrame{
                             dienThoai.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
                             int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
                             dienThoai.setMansx(mansx);
-                            dienThoaiService.addDienThoai(dienThoai);
-                            reloadData(dienThoaiService.getAllDienThoai());
-                            JOptionPane.showMessageDialog(mainPanel, "Thêm thành công");
-                            option = 0;
-                            disableInfo();
+                            int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận thêm sản phẩm này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                            if(res == JOptionPane.YES_OPTION){
+                                dienThoaiService.addDienThoai(dienThoai);
+                                reloadData(dienThoaiService.getAllDienThoai());
+                                JOptionPane.showMessageDialog(mainPanel, "Thêm thành công");
+                                option = 0;
+                                disableInfo();
+                            }
+
                         }catch (NumberFormatException e){
                             JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
                             textGiamGia.setText("");
@@ -183,12 +195,14 @@ public class QuanLiDienThoai extends JFrame{
                            dienThoai.setPhantramgiam(Integer.parseInt(textGiamGia.getText()));
                            int mansx = nhaSanXuatService.getMaHangSanXuat(String.valueOf(comboBoxNsx.getSelectedItem()));
                            dienThoai.setMansx(mansx);
-
-                           dienThoaiService.updateDienThoai(dienThoai);
-                           JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
-                           reloadData(dienThoaiService.getAllDienThoai());
-                           option = 0;
-                           disableInfo();
+                           int res = JOptionPane.showConfirmDialog(mainPanel, "Xác nhận cập nhật sản phẩm này ?", "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                           if(res == JOptionPane.YES_OPTION){
+                               dienThoaiService.updateDienThoai(dienThoai);
+                               JOptionPane.showMessageDialog(mainPanel, "Cập nhật thành công");
+                               reloadData(dienThoaiService.getAllDienThoai());
+                               option = 0;
+                               disableInfo();
+                           }
                        }catch (NumberFormatException e){
                            JOptionPane.showMessageDialog(mainPanel, "Số lượng, giá bán, Giảm giá không được bỏ trống và không nhập bằng chữ");
                            setInfo();
@@ -208,14 +222,6 @@ public class QuanLiDienThoai extends JFrame{
             }
         });
     }
-    private static boolean isInteger(String input) {
-        try {
-            Integer.parseInt(input);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
     private void reloadData(List<ViewDienThoai> dienThoais){
         defaultTableModel.setRowCount(0);
         for(ViewDienThoai dienThoai : dienThoais){
@@ -223,6 +229,7 @@ public class QuanLiDienThoai extends JFrame{
                     .getSoluong(), dienThoai.getGiaban(), dienThoai.getPhantramgiam()});
         }
     }
+    // không cho người dùng thao tác vào các TextField khi gọi hàm này
     private void disableInfo(){
         textTenDienThoai.enable(false);
         textGiamGia.enable(false);
@@ -230,6 +237,7 @@ public class QuanLiDienThoai extends JFrame{
         textSoLuong.enable(false);
         comboBoxNsx.enable(false);
     }
+    // cho phép người dùng thao tác vào các TextField khi gọi hàm này
     private void enableInfo(){
         textTenDienThoai.enable(true);
         textGiamGia.enable(true);
@@ -237,6 +245,7 @@ public class QuanLiDienThoai extends JFrame{
         textSoLuong.enable(true);
         comboBoxNsx.enable(true);
     }
+    // Hàm này lấy mẫu tin từ tableDienThoai mà người dùng click vào
     private void setInfo(){
         DefaultTableModel model = (DefaultTableModel)tableDienThoai.getModel();
         int selectedRowIndex = tableDienThoai.getSelectedRow();
@@ -246,6 +255,4 @@ public class QuanLiDienThoai extends JFrame{
         textGiaBan.setText(decimalFormat.format(Integer.parseInt(model.getValueAt(selectedRowIndex, 4).toString())));
         textGiamGia.setText(model.getValueAt(selectedRowIndex, 5).toString());
     }
-
-
 }

@@ -1,18 +1,22 @@
-package DAO;
-
+package DAL;
 
 import model.ChiTietHoaDonPhuKien;
 import model.muapk;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.sql.Date;
 import java.util.List;
 
+/**
+ * Lớp DAOMuaPhuKien thực hiện các thao tác truy vấn dữ liệu liên quan đến việc mua phụ kiện trong hóa đơn.
+ * Các method trong class này được gọi bởi ChiTietHoaDonService.
+ */
 public class DAOMuaPhuKien {
     Connection conn;
+
     {
         try {
             conn = JDBCConnection.getJDBCConnection();
@@ -21,28 +25,11 @@ public class DAOMuaPhuKien {
         }
     }
 
-    public List<muapk> getAllmuapk(){
-        List<muapk> muapks = new ArrayList<muapk>();
-        String sql = "SELECT * FORM muapk;";
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            ResultSet rs = preparedStatement.executeQuery();
-            muapk mpk = new muapk();
-
-            while (rs.next()){
-                mpk.setMapk(rs.getInt("mapk"));
-                mpk.setMahd(rs.getInt("mahd"));
-                mpk.setSoluong(rs.getInt("soluong"));
-            }
-
-            muapks.add(mpk);
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return muapks;
-    }
-
+    /**
+     * Truy xuất danh sách chi tiết hóa đơn phụ kiện từ cơ sở dữ liệu dựa trên mã hóa đơn.
+     * @param mahd Mã hóa đơn cần tìm chi tiết.
+     * @return Danh sách các đối tượng ChiTietHoaDonPhuKien chứa thông tin chi tiết hóa đơn phụ kiện.
+     */
     public List<ChiTietHoaDonPhuKien> getChiTietHoaDonPhuKien(int mahd){
         List<ChiTietHoaDonPhuKien> chiTietHoaDonPhuKiens = new ArrayList<ChiTietHoaDonPhuKien>();
         String sql = "SELECT PhuKien.mapk,  PhuKien.tenpk , PhuKien.giaban, PhuKien.phantramgiam, muapk.soluong " +
@@ -68,6 +55,10 @@ public class DAOMuaPhuKien {
         return chiTietHoaDonPhuKiens;
     }
 
+    /**
+     * Thêm mới thông tin mua phụ kiện vào cơ sở dữ liệu.
+     * @param muapk Thông tin mua phụ kiện cần thêm mới.
+     */
     public void insertMuapk(muapk muapk){
         String sql = "INSERT INTO muapk(mahd, mapk, soluong) VALUES (?, ?, ?);";
         try {
@@ -82,21 +73,10 @@ public class DAOMuaPhuKien {
             throw new RuntimeException(e);
         }
     }
-    public void updatemuapk(int mahd, int mapk, int soluong) {
-        String sql = "UPDATE muapk set soluong=? WHERE mapk=? AND madt=?;";
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, soluong);
-            preparedStatement.setInt(2, mahd);
-            preparedStatement.setInt(3, mapk);
-
-            int rs = preparedStatement.executeUpdate();
-            System.out.println(rs);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * Xóa thông tin mua phụ kiện dựa trên mã phụ kiện.
+     * @param mapk Mã phụ kiện cần xóa.
+     */
     public void deleteSanPham(int mapk){
         String sql = "DELETE FROM muapk WHERE mapk = ?";
         try {
@@ -108,7 +88,10 @@ public class DAOMuaPhuKien {
             throw new RuntimeException(e);
         }
     }
-
+    /**
+     * Xóa thông tin mua phụ kiện dựa trên mã hóa đơn.
+     * @param mahd Mã hóa đơn cần xóa.
+     */
     public void deleteSPHoaDon(int mahd){
         String sql = "DELETE FROM muapk WHERE mahd = ?";
         try {
@@ -119,6 +102,5 @@ public class DAOMuaPhuKien {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

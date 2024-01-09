@@ -1,6 +1,5 @@
-package DAO;
+package DAL;
 
-import Service.KhachHangService;
 import model.KhachHang;
 import model.ViewKhachHang;
 
@@ -11,8 +10,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Lớp DAOKhachHang thực hiện các thao tác liên quan đến cơ sở dữ liệu cho đối tượng KhachHang.
+ * Bao gồm truy xuất thông tin khách hàng, tìm kiếm khách hàng theo số điện thoại,
+ * thêm mới, cập nhật thông tin khách hàng, xóa khách hàng.
+ */
 public class DAOKhachHang {
     Connection conn;
+
     {
         try {
             conn = JDBCConnection.getJDBCConnection();
@@ -21,6 +26,10 @@ public class DAOKhachHang {
         }
     }
 
+    /**
+     * Truy xuất danh sách tất cả khách hàng từ cơ sở dữ liệu.
+     * @return Danh sách các đối tượng ViewKhachHang chứa thông tin khách hàng.
+     */
     public List<ViewKhachHang> getAllKhachHang() {
         List<ViewKhachHang> khachHangs = new ArrayList<ViewKhachHang>();
         String sql = "SELECT KhachHang.makh, KhachHang.hokh, KhachHang.tenkh, LoaiKhachHang.tenloaikh, KhachHang.sodienthoai, KhachHang.diachi " +
@@ -28,7 +37,6 @@ public class DAOKhachHang {
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             ResultSet rs = preparedStatement.executeQuery();
-
 
             while (rs.next()){
                 ViewKhachHang kh = new ViewKhachHang();
@@ -49,6 +57,11 @@ public class DAOKhachHang {
         return khachHangs;
     }
 
+    /**
+     * Tìm kiếm khách hàng trong cơ sở dữ liệu dựa trên số điện thoại.
+     * @param sodienthoai Số điện thoại của khách hàng cần tìm kiếm.
+     * @return Đối tượng ViewKhachHang chứa thông tin khách hàng tìm thấy.
+     */
     public ViewKhachHang findKhachHang(String sodienthoai){
         ViewKhachHang khachHang = new ViewKhachHang();
         String sql = "SELECT KhachHang.makh, KhachHang.hokh, KhachHang.tenkh, LoaiKhachHang.tenloaikh, KhachHang.sodienthoai, KhachHang.diachi " +
@@ -72,6 +85,11 @@ public class DAOKhachHang {
         }
         return khachHang;
     }
+
+    /**
+     * Thêm mới một khách hàng vào cơ sở dữ liệu.
+     * @param khachHang Đối tượng KhachHang chứa thông tin khách hàng cần thêm mới.
+     */
     public void insertKhachHang (KhachHang khachHang){
         String sql = "INSERT INTO KhachHang (hokh, tenkh, loaikh, sodienthoai, diachi) VALUES(?, ?, ?, ?, ?);";
         try {
@@ -90,6 +108,10 @@ public class DAOKhachHang {
         }
     }
 
+    /**
+     * Cập nhật thông tin một khách hàng trong cơ sở dữ liệu.
+     * @param khachHang Đối tượng KhachHang chứa thông tin khách hàng cần cập nhật.
+     */
     public void updateKhachHang (KhachHang khachHang){
         String sql = "UPDATE KhachHang SET hokh=?, tenkh=?, loaikh=?, sodienthoai=?, diachi=? WHERE makh=?;";
         try {
@@ -109,6 +131,10 @@ public class DAOKhachHang {
         }
     }
 
+    /**
+     * Xóa một khách hàng khỏi cơ sở dữ liệu dựa trên mã khách hàng.
+     * @param makh Mã khách hàng cần xóa.
+     */
     public void deleteKhachHang (int makh){
         String sql = "DELETE FROM KhachHang WHERE makh=?;";
         try {
@@ -122,5 +148,4 @@ public class DAOKhachHang {
         }
 
     }
-
 }
